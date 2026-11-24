@@ -178,12 +178,66 @@ def select_unassigned_variable(csp, assignment, domains):
 
     Tips:
     - csp.consistent(x, valor, assignment) comprueba si un candidato es
-      compatible con la asignación parcial. Los dominios deben conservarse.
+      compatible con la asignacion parcial. Los dominios deben conservarse.
     - csp.neighbors[x] contiene sus vecinos; csp.variables conserva el orden
       original para los desempates.
     """
-    # TODO: Add your code here
-    raise NotImplementedError
+    
+    #MRV = Minimum Remaining Values
+    
+    #Primero debemos filtar por los valores consistentes:
+    #Crearemos un diccionario donde las llaves son tareas y los valores
+    #su tamano de dominio
+    dominiosConsistenes = {}
+    #Hacemos un for loop para filtrar los dominios
+    for tarea in csp.variables:
+      #guardamos cada tarea no asignada en el dict con una lista 
+      if not (tarea in assignment):
+        dominiosConsistenes[tarea]=0
+        
+      for valor in domains[tarea]:
+        #Cada valor valido se guarda en el dict
+        if csp.consistent(tarea, valor, assignment):
+          dominiosConsistenes[tarea] += 1
+          
+    #ahora haremos MRV sobre dominiosConsistentes
+    
+    
+    #Creamos las variables para encontrar el dominio mas pequeño
+    minTarea = None
+    minDominio = float("inf")
+    
+    #empezamos un ciclo donde buscamos el dominio mas pequeño
+    for tarea, tamanoDominio in dominiosConsistenes.items():
+      #Si el dominio es menor que el "menor" entonces se actualiza 
+      if tamanoDominio < minDominio:
+        minTarea = tarea
+        minDominio = tamanoDominio
+        #Si empatan se cuentan los vecinos no asignados, el que tiene mas 
+        #queda como min
+      elif tamanoDominio == minDominio:
+        vecinosTarea = 0
+        vecinosMin = 0
+        for vecino in csp.neighbors[tarea]:
+          if not (vecino in assignment):
+            vecinosTarea += 1
+        
+        for vecino in csp.neighbors[minTarea]:
+          if not (vecino in assignment):
+            vecinosMin += 1
+        #En esta condición queda el desempate de orden
+        #Si empatan, min no se actualiza y queda el valor antiguo 
+        #como min
+        if vecinosTarea > vecinosMin:
+          minTarea = tarea
+          minDominio = tamanoDominio
+          
+    return minTarea
+      
+    
+    
+    
+    
     # FIN DEL BLOQUE DEL ESTUDIANTE
 
 
