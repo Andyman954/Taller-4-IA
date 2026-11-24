@@ -254,6 +254,58 @@ def order_domain_values(csp, variable, assignment, domains):
     - csp.compatible(variable, valor, vecino, valor_vecino) comprueba cada par
       sin modificar los dominios.
     """
-    # TODO: Add your code here
-    raise NotImplementedError
+    #valoresTarea será in dict que tiene los valores de la variable
+    #como llave y la cantidad de valores descartados como valor
+    valoresTarea= {}
+    
+    #llenamos valoresTarea solo de los valores consistentes con 
+    #la asignacion parcial
+    for valor in domains[variable]:
+      if csp.consistent(variable, valor, assignment):
+        valoresTarea[valor] = 0
+    
+    #creamos un dict donde tenemos los vecinos no asignados como
+    #llaves y una lista de sus valores compatibles con la asignacion
+    #parcial como los valores
+    vecinos= {}
+    
+    #pasamso por todos los vecinos viendo si estan asignados
+    for vecino in csp.neighbors[variable]:
+      if vecino not in assignment:
+        #pasamos por los valores de cada vecino agregando los valores
+        #consitentes con la asignacion a la lista de ese vecino
+        for valor in domains[vecino]:
+          if csp.consistent(vecino, valor, assignment):
+            if vecino in vecinos:
+              vecinos[vecino].append(valor)
+            else:
+              vecinos[vecino] = [valor]
+              
+    #pasamos por cada valor de la variable, y por cada uno
+    #revisamos cada vecino y cadda vez que los valores 
+    #no son compatibles le sumamos 1 al valor en el dict
+    for valorTarea in valoresTarea.keys():
+      for vecino  in vecinos.keys():
+        for valorVecino in vecinos[vecino]:
+          if not csp.compatible(variable, valorTarea, vecino, valorVecino):
+            valoresTarea[valorTarea] += 1
+    
+    #debemos organizar los valores por LCV
+    
+    listaLCV =[]
+    
+    for i in range(0,len(valoresTarea)):
+      minValor = None
+      minDescartados = float("inf")
+      
+      for valor, numDescartados in valoresTarea.items():
+        if minDescartados > numDescartados:
+          minDescartados = numDescartados
+          minValor = valor
+      
+      listaLCV.append(minValor)
+      valoresTarea.pop(minValor)
+    
+    return listaLCV
+        
     # FIN DEL BLOQUE DEL ESTUDIANTE
