@@ -197,8 +197,9 @@ def select_unassigned_variable(csp, assignment, domains):
         
       for valor in domains[tarea]:
         #Cada valor valido se guarda en el dict
-        if csp.consistent(tarea, valor, assignment):
-          dominiosConsistenes[tarea] += 1
+        if tarea not in assignment:
+          if csp.consistent(tarea, valor, assignment):
+            dominiosConsistenes[tarea] += 1
           
     #ahora haremos MRV sobre dominiosConsistentes
     
@@ -294,7 +295,7 @@ def order_domain_values(csp, variable, assignment, domains):
     
     listaLCV =[]
     
-    for i in range(0,len(valoresTarea)):
+    while len(valoresTarea)>0:
       minValor = None
       minDescartados = float("inf")
       
