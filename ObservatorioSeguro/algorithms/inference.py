@@ -17,6 +17,22 @@ def forward_chain(kb):
     - substitute(regla.conclusion, sustitución) retorna un nuevo objeto Atom
       con las variables reemplazadas por los valores de la sustitución.
     """
-    # TODO: Add your code here
-    raise NotImplementedError
+    hechos = list(kb.facts)
+
+    hay_nuevos = True
+    while hay_nuevos:
+        nuevos = []
+        for regla in kb.rules:
+            for sustitucion, usados in match_premises(regla.premises, hechos):
+                conclusion = substitute(regla.conclusion, sustitucion)
+                if conclusion not in hechos and conclusion not in nuevos:
+                    nuevos.append(conclusion)
+
+        if len(nuevos) == 0:
+            hay_nuevos = False
+        else:
+            for hecho in nuevos:
+                hechos.append(hecho)
+
+    return tuple(hechos)
     # FIN DEL BLOQUE DEL ESTUDIANTE
