@@ -105,7 +105,7 @@ def revise(csp, x, y, domains):
       entre ese par de tareas, respetando la dirección de las precedencias.
     - Si elimina elementos mientras recorre una lista, itere sobre una copia.
     """
-    #Creamos una copia para iterar sobre ella
+    #Creamos una copia para iterar sobre ella 
     copiaDominioX=[]
     for i in domains[x]:
       copiaDominioX.append(i)
@@ -146,29 +146,32 @@ def ac3(csp, domains):
       csp.neighbors[x] contiene los vecinos de x.
     - revise(csp, x, y, domains) retorna si modificó domains[x].
     """
-    #Creamos una cola, esta va a tener todas las tareas que hay que revisar
-    cola=[]
+    #Creamos una cola, esta va a tener todos los arcos que hay que revisar
+    cola=deque()
     #ponemos todos los arcos en la cola como una tupla (ID_1, ID_2)
-    for tarea in domains.keys():
+    for tarea in csp.variables:
       for vecino in csp.neighbors[tarea]:
         cola.append((tarea,vecino))
-      
-    #Empezamos la revision AC-3, hasta que la cola no este vacia seguiremos 
+
+    #Empezamos la revision AC-3, hasta que la cola no este vacia seguiremos
     #este loop:
     while len(cola)>0:
-      #Sacamos el primer valor de la cola
-      tupla=cola.pop(0)
-      #Usamos revise() para modificar los dominios necesarios
-      if revise(csp,tupla[0],tupla[1],domains):
-        #Si tuvimos que modificar el dominio, agregamos el arco en
-        #en direccion opuesta a la cola
-        cola.append((tupla[1],tupla[0]))
-    
-    #Ahora comprobamos si los dominios no sean vacios
-    for dominio in domains.values():
-      if len(dominio)==0:
-        return False
-      
+      #Sacamos el primer arco de la cola
+      x,y=cola.popleft()
+      #Usamos revise() para modificar el dominio de x si hace falta
+      if revise(csp,x,y,domains):
+        #Si el dominio de x quedo vacio no hay solucion posible
+        if len(domains[x])==0:
+          return False
+        #Si tuvimos que modificar el dominio de x, los demas vecinos de x
+        #pueden haber perdido soporte, asi que agregamos los arcos (k, x)
+        #para cada vecino k distinto de y. El arco (y, x) no hace falta:
+        #los valores eliminados de x no tenian soporte en y, asi que
+        #no sostenian ningun valor de y.
+        for k in csp.neighbors[x]:
+          if k != y:
+            cola.append((k,x))
+
     return True
     # FIN DEL BLOQUE DEL ESTUDIANTE
 
